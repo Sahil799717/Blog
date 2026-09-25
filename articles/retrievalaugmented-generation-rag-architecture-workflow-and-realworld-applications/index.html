@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Technical article: Retrieval‑Augmented Generation (RAG): Architecture, Workflow, and Real‑World Applications"
+    >
+
+    <meta
+        name="author"
+        content="Sahil Dubey"
+    >
+
+    <title>Retrieval‑Augmented Generation (RAG): Architecture, Workflow, and Real‑World Applications</title>
+
+    <style>
+
+        * {
+            box-sizing:
+                border-box;
+        }
+
+        body {
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            max-width:
+                900px;
+
+            margin:
+                0 auto;
+
+            padding:
+                40px 20px;
+
+            line-height:
+                1.8;
+
+            color:
+                #222;
+
+            background:
+                #ffffff;
+        }
+
+        h1 {
+
+            font-size:
+                42px;
+
+            line-height:
+                1.2;
+
+            margin-bottom:
+                35px;
+        }
+
+        h2 {
+
+            font-size:
+                30px;
+
+            line-height:
+                1.3;
+
+            margin-top:
+                45px;
+
+            margin-bottom:
+                20px;
+        }
+
+        h3 {
+
+            font-size:
+                24px;
+
+            line-height:
+                1.4;
+
+            margin-top:
+                35px;
+
+            margin-bottom:
+                15px;
+        }
+
+        p {
+
+            font-size:
+                18px;
+
+            margin:
+                18px 0;
+        }
+
+        ul,
+        ol {
+
+            font-size:
+                18px;
+
+            padding-left:
+                30px;
+
+            margin:
+                20px 0;
+        }
+
+        li {
+
+            margin:
+                8px 0;
+        }
+
+        strong {
+
+            font-weight:
+                700;
+        }
+
+        code {
+
+            font-family:
+                Consolas,
+                "Courier New",
+                monospace;
+
+            background:
+                #f4f4f4;
+
+            padding:
+                2px 6px;
+
+            border-radius:
+                4px;
+
+            font-size:
+                0.9em;
+        }
+
+        pre {
+
+            background:
+                #f5f5f5;
+
+            padding:
+                20px;
+
+            border-radius:
+                10px;
+
+            overflow-x:
+                auto;
+
+            margin:
+                25px 0;
+        }
+
+        pre code {
+
+            background:
+                transparent;
+
+            padding:
+                0;
+
+            font-size:
+                14px;
+        }
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+            margin:
+                30px 0;
+
+            display:
+                block;
+
+            overflow-x:
+                auto;
+        }
+
+        th,
+        td {
+
+            border:
+                1px solid #ddd;
+
+            padding:
+                12px;
+
+            text-align:
+                left;
+
+            vertical-align:
+                top;
+        }
+
+        th {
+
+            font-weight:
+                700;
+        }
+
+        blockquote {
+
+            border-left:
+                4px solid #999;
+
+            margin:
+                25px 0;
+
+            padding:
+                10px 20px;
+
+            font-style:
+                italic;
+        }
+
+        a {
+
+            word-break:
+                break-word;
+        }
+
+        .article-image {
+
+            margin:
+                40px 0;
+
+            text-align:
+                center;
+        }
+
+        .article-image img {
+
+            width:
+                100%;
+
+            max-width:
+                850px;
+
+            height:
+                auto;
+
+            display:
+                block;
+
+            margin:
+                0 auto;
+
+            border-radius:
+                12px;
+        }
+
+        .article-image figcaption {
+
+            margin-top:
+                10px;
+
+            font-size:
+                14px;
+
+            color:
+                #666;
+        }
+
+        .article-content {
+
+            margin-top:
+                30px;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+
+                padding:
+                    25px 15px;
+            }
+
+            h1 {
+
+                font-size:
+                    32px;
+            }
+
+            h2 {
+
+                font-size:
+                    25px;
+            }
+
+            h3 {
+
+                font-size:
+                    21px;
+            }
+
+            p,
+            ul,
+            ol {
+
+                font-size:
+                    17px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <h1>Retrieval‑Augmented Generation (RAG): Architecture, Workflow, and Real‑World Applications</h1>
+
+
+    <article class="article-content">
+
+        <h3>Introduction to RAG</h3>
+<p>Retrieval‑Augmented Generation (RAG) combines two traditionally separate AI capabilities—information retrieval and natural language generation—into a single, end‑to‑end system. Instead of relying solely on the parameters of a language model to produce answers, a RAG pipeline first fetches relevant external documents (or passages) and then conditions the generation step on that retrieved context. The result is a model that can answer questions, write summaries, or draft content with up‑to‑date, factual grounding while still benefiting from the fluency of large language models (LLMs).</p>
+<h3>Core Components of RAG</h3>
+<p>A typical RAG architecture consists of three tightly coupled modules:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+<th>Common Implementations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Retriever</strong></td>
+<td>Searches a knowledge store for pieces of text that are likely to contain the answer.</td>
+<td>Dense vector retrievers (e.g., FAISS, ScaNN) using embeddings from BERT, DPR, or sentence‑transformers; sparse retrievers (BM25).</td>
+</tr>
+<tr>
+<td><strong>Reader/Generator</strong></td>
+<td>Consumes the retrieved passages and produces the final output.</td>
+<td>Decoder‑only LLMs (GPT‑3, LLaMA, Falcon) or encoder‑decoder models (T5, BART).</td>
+</tr>
+<tr>
+<td><strong>Knowledge Store</strong></td>
+<td>The corpus of documents the retriever draws from.</td>
+<td>Static datasets (Wikipedia, domain‑specific manuals) or dynamic stores (company intranet, web‑crawled data).</td>
+</tr>
+</tbody>
+</table>
+<p>The synergy among these modules is what gives RAG its “augmented” capability: the generator is no longer a closed‑book model but a “open‑book” one that can look up evidence on demand.</p>
+<h3>Retrieval Mechanism</h3>
+<p>The retrieval stage transforms a user query into a vector representation (or a set of lexical terms) and then performs similarity search against the indexed knowledge store.</p>
+<ol>
+<li><strong>Embedding Generation</strong> – A dual‑encoder (often called a <em>bi‑encoder</em>) encodes the query and each document independently. Because the encodings are pre‑computed for the corpus, lookup is fast.</li>
+<li><strong>Indexing</strong> – Vectors are stored in an approximate nearest‑neighbor (ANN) index (FAISS, HNSW, ScaNN). The index balances speed and recall, allowing real‑time retrieval even from millions of passages.</li>
+<li><strong>Scoring &amp; Reranking</strong> – The top‑k candidates (commonly 5–20) are optionally reranked with a cross‑encoder that jointly attends to query and passage, improving relevance at the cost of latency.</li>
+<li><strong>Passage Selection</strong> – The final set of passages is concatenated (often with delimiters) and passed to the generator. Strategies such as “max‑pooling” or “semantic chunking” help keep the total token count within model limits.</li>
+</ol>
+<h3>Generation Process</h3>
+<p>Once the relevant text is in hand, the generator produces the answer:</p>
+<ul>
+<li><strong>Prompt Construction</strong> – The retrieved passages are embedded in a prompt that typically includes an instruction (e.g., “Answer the question using only the information below”) and the original query.</li>
+<li><strong>Conditioned Decoding</strong> – The LLM attends to both the instruction and the retrieved context. Because the context is external, the model can remain relatively small while still delivering accurate, up‑to‑date information.</li>
+<li><strong>Post‑Processing</strong> – Techniques such as answer extraction, citation tagging, or confidence scoring are applied to make the output more usable for downstream applications.</li>
+</ul>
+<h3>End‑to‑End Workflow</h3>
+<ol>
+<li><strong>User Query</strong> → 2. <strong>Query Encoder</strong> → 3. <strong>ANN Search</strong> → 4. <strong>Top‑k Passages</strong> → 5. <strong>Prompt Assembly</strong> → 6. <strong>LLM Generation</strong> → 7. <strong>Output (with optional citations)</strong></li>
+</ol>
+<p>A practical illustration: a customer support chatbot receives the question “How do I reset my two‑factor authentication?”. The query encoder maps the question to a vector, the retriever pulls the relevant sections from the company’s security policy wiki, the prompt is built, and a modest‑sized LLM generates a step‑by‑step guide, citing the exact policy paragraph.</p>
+<h3>Use Cases and Applications</h3>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Example Application</th>
+<th>Why RAG Fits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Enterprise Knowledge Management</strong></td>
+<td>Internal help‑desks that answer policy or HR questions.</td>
+<td>Guarantees answers are grounded in the latest internal documents.</td>
+</tr>
+<tr>
+<td><strong>Healthcare</strong></td>
+<td>Clinical decision support that references up‑to‑date guidelines.</td>
+<td>Reduces hallucination risk by anchoring to authoritative sources.</td>
+</tr>
+<tr>
+<td><strong>Legal</strong></td>
+<td>Contract analysis tools that retrieve precedent clauses.</td>
+<td>Enables precise citation of statutes or prior cases.</td>
+</tr>
+<tr>
+<td><strong>Education</strong></td>
+<td>Adaptive tutoring that pulls textbook excerpts.</td>
+<td>Provides factual scaffolding while maintaining conversational flow.</td>
+</tr>
+<tr>
+<td><strong>Search &amp; Summarization</strong></td>
+<td>Generative search engines that return concise answers with source links.</td>
+<td>Combines relevance ranking with natural‑language summarization.</td>
+</tr>
+</tbody>
+</table>
+<h3>Benefits and Limitations</h3>
+<p><strong>Benefits</strong>
+- <strong>Improved factuality</strong> – Retrieval provides a factual anchor, decreasing hallucinations.
+- <strong>Data efficiency</strong> – The generator can be smaller because it does not need to memorize all knowledge.
+- <strong>Dynamic knowledge</strong> – Updating the knowledge store (e.g., adding a new policy) instantly refreshes the system without retraining the LLM.
+- <strong>Explainability</strong> – Retrieved passages can be shown as citations, increasing user trust.</p>
+<p><strong>Limitations</strong>
+- <strong>Latency</strong> – Retrieval and possible reranking add overhead compared to a pure generation model.
+- <strong>Index maintenance</strong> – Large, frequently changing corpora require incremental indexing or re‑embedding pipelines.
+- <strong>Context window constraints</strong> – The generator can only attend to a limited number of tokens; careful passage selection or chunking is required.
+- <strong>Retrieval quality dependency</strong> – If the retriever fails to fetch relevant documents, the generator may still hallucinate or produce low‑quality answers.</p>
+<h3>Future Directions</h3>
+<p>Research is converging on tighter integration between retrieval and generation:</p>
+<ul>
+<li><strong>Joint Training</strong> – End‑to‑end differentiable retrieval (e.g., RAG‑Fusion) where the retriever and generator are co‑optimized.</li>
+<li><strong>Hybrid Retrieval</strong> – Combining dense and sparse signals in a single index to capture both semantic similarity and exact keyword matches.</li>
+<li><strong>Multimodal RAG</strong> – Extending retrieval to images, tables, or code snippets, allowing generators to reason over heterogeneous data.</li>
+<li><strong>Efficient Retrieval</strong> – Leveraging quantization, product quantization, or learned indexes to reduce memory footprint and latency.</li>
+<li><strong>Self‑Correcting Loops</strong> – Using the generator’s confidence to trigger additional retrieval passes (iterative refinement).</li>
+</ul>
+<p>These trends aim to make RAG systems faster, more accurate, and capable of handling richer modalities.</p>
+<h3>Conclusion</h3>
+<p>Retrieval‑Augmented Generation bridges the gap between static knowledge storage and generative flexibility. By coupling a high‑performance retriever with a language model, RAG delivers answers that are both fluent and factually grounded, making it a compelling choice for any domain where up‑to‑date, explainable information is critical. Understanding the architecture—retriever, knowledge store, and generator—along with the practical workflow, enables data scientists and AI practitioners to design, evaluate, and deploy RAG solutions that meet real‑world demands while being mindful of latency, indexing, and context limitations. As research pushes toward tighter integration and multimodal capabilities, RAG is poised to become a foundational building block of next‑generation AI assistants and enterprise knowledge systems.</p>
+
+        
+            <figure class="article-image">
+
+                <img
+                    src="images/image_1.png"
+                    alt="AI generated illustration 1"
+                    loading="lazy"
+                >
+
+                <figcaption>
+                    Figure 1
+                </figcaption>
+
+            </figure>
+            
+
+            <figure class="article-image">
+
+                <img
+                    src="images/image_2.png"
+                    alt="AI generated illustration 2"
+                    loading="lazy"
+                >
+
+                <figcaption>
+                    Figure 2
+                </figcaption>
+
+            </figure>
+            
+
+            <figure class="article-image">
+
+                <img
+                    src="images/image_3.png"
+                    alt="AI generated illustration 3"
+                    loading="lazy"
+                >
+
+                <figcaption>
+                    Figure 3
+                </figcaption>
+
+            </figure>
+            
+
+    </article>
+
+
+</body>
+
+</html>
